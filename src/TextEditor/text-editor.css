@@ -1,23 +1,126 @@
+.editor-wrapper {
+  max-width: 800px;
+  margin: 2rem auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 .editor-container {
-    position: relative;
-  }
-  
-  .suggestions-list {
-    position: absolute;
-    left: 0;
-    margin-top: 4px;
-    width: 200px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  .suggestion-item {
-    padding: 8px 16px;
-    cursor: pointer;
-  }
-  
-  .suggestion-item.selected {
-    background-color: #e5e7eb;
-  }
+  min-height: 300px;
+  padding: 2rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.editor-container:focus-within {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.DraftEditor-root {
+  height: 100%;
+}
+
+.DraftEditor-editorContainer {
+  height: 100%;
+}
+
+/* Regular text styling */
+.public-DraftEditor-content {
+  min-height: 250px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #64748b;  /* slate-500 for regular text */
+}
+
+.public-DraftEditorPlaceholder-root {
+  color: #9ca3af;
+  position: absolute;
+  font-size: 18px;
+}
+
+/* Autocompleted entries styling - this will override the regular text styling */
+.autocompleted-entry {
+  background: var(--entry-color-bg, rgba(79, 70, 229, 0.1));
+  color: var(--entry-color, #4f46e5);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 2px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Style for autocompleted entries */
+span[data-offset-key] span {
+  background: linear-gradient(120deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 2px;
+  color: #4f46e5;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  margin-top: 8px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  max-height: 250px;
+  overflow-y: auto;
+  width: 200px;
+  z-index: 10;
+}
+
+.suggestion-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--suggestion-color, #4f46e5);
+}
+
+.suggestion-item:before {
+  content: '→';
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.suggestion-item:hover {
+  background-color: #f8fafc;
+}
+
+.suggestion-item.selected {
+  background-color: var(--suggestion-color, #4f46e5);
+  color: white;
+}
+
+.suggestion-item.selected:before {
+  color: white;
+}
+
+/* Scrollbar styling */
+.suggestions-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

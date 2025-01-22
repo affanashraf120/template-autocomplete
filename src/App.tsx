@@ -5,7 +5,6 @@ import 'draft-js/dist/Draft.css';
 function App() {
   return (
     <div>
-      <h1>Editor</h1>
       <TextEditor/>
     </div>  
   );

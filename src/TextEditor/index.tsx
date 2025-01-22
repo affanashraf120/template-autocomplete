@@ -19,9 +19,32 @@ const SUGGESTIONS = [
   'address'
 ];
 
+// Add this at the top with other imports
+const ENTRY_COLORS: { [key: string]: string } = {
+  user: '#4f46e5',    // indigo
+  name: '#2563eb',    // blue
+  email: '#7c3aed',   // violet
+  phone: '#db2777',   // pink
+  address: '#059669'  // emerald
+};
+
 // Custom component for autocompleted entries
 const AutocompletedSpan = (props: any) => {
-  return <span style={{ color: '#2563eb', userSelect: 'none' }}>{props.children}</span>;
+  const text = props.children[0].props.text;
+  const value = text.replace('<>', '');
+  const color = ENTRY_COLORS[value] || '#4f46e5';
+
+  return (
+    <span 
+      className="autocompleted-entry"
+      style={{ 
+        '--entry-color': color,
+        '--entry-color-bg': `${color}10`
+      } as React.CSSProperties}
+    >
+      {props.children}
+    </span>
+  );
 };
 
 const CustomEditor = () => {
@@ -41,7 +64,7 @@ const CustomEditor = () => {
   function findAutocompleted(contentBlock: any, callback: any) {
     const text = contentBlock.getText();
     let matchArr, start;
-    const regex = /<>[^<>\n]+/g;
+    const regex = /<>[^\s<>]+/g;
     while ((matchArr = regex.exec(text)) !== null) {
       start = matchArr.index;
       callback(start, start + matchArr[0].length);
@@ -56,12 +79,12 @@ const CustomEditor = () => {
     const cursorPos = selection.getStartOffset();
     
     if (command === 'backspace') {
-      // Check if cursor is at the end of an autocompleted entry
+      // Check if cursor is right after an autocompleted entry
       const beforeCursor = text.slice(0, cursorPos);
-      const match = beforeCursor.match(/<>[^<>\n]+$/);
+      const match = beforeCursor.match(/<>[^\s<>]+$/);
       
-      if (match) {
-        // Remove the entire autocompleted entry
+      if (match && match.index !== undefined && match.index + match[0].length === cursorPos) {
+        // Remove only the autocompleted entry
         const newContent = Modifier.removeRange(
           content,
           selection.merge({
@@ -114,15 +137,14 @@ const CustomEditor = () => {
     const text = block.getText();
     const cursorPos = selection.getStartOffset();
     
-    // Find the start of the autocomplete trigger
     const beforeCursor = text.slice(0, cursorPos);
-    const match = beforeCursor.match(/<>([^<>\n]*)$/);
+    const match = beforeCursor.match(/<>([^\s<>]*)$/);
     
     if (match) {
       const start = match.index!;
-      // Use suggestion if provided, otherwise use the match string
       const valueToInsert = suggestion || match[1];
       
+      // Insert the autocompleted text without space
       const newContent = Modifier.replaceText(
         content,
         selection.merge({
@@ -132,13 +154,26 @@ const CustomEditor = () => {
         `<>${valueToInsert}`
       );
       
+      // Add space separately
+      const newContentWithSpace = Modifier.insertText(
+        newContent,
+        newContent.getSelectionAfter(),
+        ' '
+      );
+      
       const newState = EditorState.push(
         editorState,
-        newContent,
+        newContentWithSpace,
         'insert-characters'
       );
       
-      setEditorState(newState);
+      // Move cursor after the space
+      const newSelection = newState.getSelection().merge({
+        anchorOffset: start + valueToInsert.length + 3,
+        focusOffset: start + valueToInsert.length + 3
+      });
+      
+      setEditorState(EditorState.forceSelection(newState, newSelection));
       setSuggestions([]);
     }
   };
@@ -199,6 +234,9 @@ const CustomEditor = () => {
               }`}
               onClick={() => insertSuggestion(suggestion)}
               onMouseEnter={() => setSelectedSuggestion(index)}
+              style={{
+                '--suggestion-color': ENTRY_COLORS[suggestion] || '#4f46e5'
+              } as React.CSSProperties}
             >
               {suggestion}
             </div>
